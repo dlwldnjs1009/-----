@@ -7,37 +7,34 @@ public class Application {
     public static void main(String[] args) {
         Person person = new Person();
         long start = System.nanoTime();
-        Future<Integer> futurePips = person.rollTheDice();
-        long invocationTime = ((System.nanoTime() - start) / 1_000_000);
-        System.out.println("Invocation returned after " + invocationTime + " msecs");
 
-        dosometing(person); // 주사위 굴리는 동안 또 다른 주사위 굴리기 작업을 수행
-        dosometing(person);
-        dosometing(person);
-        dosometing(person);
-        dosometing(person);
+        // 첫 번째 주사위 굴리기 작업 시작
+        Future<Integer> firstRoll = person.rollTheDice();
+        System.out.println("Invocation returned after " + ((System.nanoTime() - start) / 1_000_000) + " msecs");
 
-        try {
-            int result = futurePips.get();
-            System.out.println("주사위 눈: " + result);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        // dosometing() 호출하여 추가 주사위 굴리기 작업 5회 실행
+        for (int i = 1; i <= 10; i++) {
+            performAdditionalRoll(person, i);
         }
-        long retrievalTime = ((System.nanoTime() - start) / 1_000_000);
-        System.out.println("주사위 굴리기 완료 후 " + retrievalTime + " msecs");
 
+        // 첫 번째 작업 결과 출력
+        try {
+            int result = firstRoll.get();
+            System.out.println("첫 번째 주사위 눈: " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("주사위 굴리기 완료 후 " + ((System.nanoTime() - start) / 1_000_000) + " msecs");
         person.shutdownExecutor();
     }
 
-    private static void dosometing(Person person) {
-        System.out.println("dosometing() 시작: 다른 작업 수행 중, 동시에 두 번째 주사위 굴리기...");
-        //비동기 주사위 굴리기
-        Future<Integer> futureDice2 = person.rollTheDice();
-
-        // dosometing()에서 다른 작업을 수행할 수 있음
+    private static void performAdditionalRoll(Person person, int rollNumber) {
+        System.out.println("dosometing() 시작: 동시에 주사위 굴리기 작업 " + rollNumber + " 실행");
+        Future<Integer> additionalRoll = person.rollTheDice();
         try {
-            int dice2 = futureDice2.get();
-            System.out.println("dosometing()에서 두 번째 주사위 눈: " + dice2);
+            int result = additionalRoll.get();
+            System.out.println("dosometing()에서 주사위 눈(" + rollNumber + "): " + result);
         } catch (Exception e) {
             e.printStackTrace();
         }
