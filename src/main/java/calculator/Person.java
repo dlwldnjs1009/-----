@@ -1,10 +1,13 @@
 package calculator;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Person {
+
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Future<Integer> rollTheDice() {
         Dice dice = Dice.createDice(new RandomNumber());
@@ -15,5 +18,7 @@ public class Person {
         });
     }
 
-
+    public void shutdownExecutor() {
+        executor.shutdown();
+    }
 }

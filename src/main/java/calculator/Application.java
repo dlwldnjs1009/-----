@@ -25,6 +25,8 @@ public class Application {
         }
         long retrievalTime = ((System.nanoTime() - start) / 1_000_000);
         System.out.println("주사위 굴리기 완료 후 " + retrievalTime + " msecs");
+
+        person.shutdownExecutor();
     }
 
     private static void dosometing(Person person) {
