@@ -80,10 +80,15 @@ CompletableFuture는 면접 준비할 때 비동기 공부하면서 실습했던
 ## 결과 분석 및 결론
 실험 결과는 각 Executor가 내부적으로 사용하는 작업 큐의 특성에 따라 제출 속도와 작업 할당 횟수가 크게 달라짐을 보여준다.
 
+<img width="881" alt="3" src="https://github.com/user-attachments/assets/d7269e4a-5a11-4fed-a8b2-48b7cdd766e7" />
+<img width="881" alt="1" src="https://github.com/user-attachments/assets/83d96585-ebc1-4941-9909-84230a4107aa" />
+<img width="881" alt="2" src="https://github.com/user-attachments/assets/7fc35c4b-4d8f-4b9c-8f10-db2ea2557e2b" />
+
 SingleThreadExecutor와 FixedThreadPool은 내부적으로 **LinkedBlockingQueue**를 사용한다.  
 LinkedBlockingQueue는 기본적으로 용량이 매우 크거나 무제한에 가까워 작업 제출 시 블로킹 없이 빠르게 작업을 수용한다.  
 따라서 메인 스레드가 1초 동안 약 4백만 건 이상의 작업을 빠르게 제출할 수 있었다.
 
+<img width="881" alt="4" src="https://github.com/user-attachments/assets/9e016725-a1b2-4732-abe4-0a676cd97210" />
 반면, CachedThreadPool은 내부적으로 **SynchronousQueue**를 사용한다.  
 SynchronousQueue는 내부 버퍼가 없으므로, 작업 제출 시 즉시 다른 스레드가 작업을 받아야 한다.  
 만약 워커 스레드가 즉시 작업을 수신하지 않으면 제출하는 스레드가 블로킹되어 작업 제출 속도가 크게 떨어진다.  
@@ -97,3 +102,6 @@ LinkedBlockingQueue를 사용하는 경우 1초 동안 약 4백만 건의 작업
 SynchronousQueue를 사용하는 경우 작업 제출 시 즉시 핸드오프가 요구되어 블로킹이 발생, 1초 동안 약 7만 건의 작업만 제출됨을 확인하였다.  
 따라서 Executor 선택 시 내부 큐의 특성을 고려하는 것이 매우 중요하다.
 
+참고:
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/LinkedBlockingDeque.html
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/SynchronousQueue.html
