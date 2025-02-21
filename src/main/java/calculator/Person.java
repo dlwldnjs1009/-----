@@ -1,7 +1,10 @@
 package calculator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * Person 클래스는 주사위 굴리기 작업을 Executor를 통해 비동기로 실행하는 역할을 한다.
@@ -32,6 +35,16 @@ public class Person {
             System.out.println("rollTheDice 실행 중인 스레드: " + Thread.currentThread().getName());
             return dice.roll();
         }, executor);
+    }
+
+    // 동시에 n개의 주사위를 굴리는 메서드 추가
+    public CompletableFuture<List<Integer>> rollNDice(int n) {
+        List<CompletableFuture<Integer>> futures = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            futures.add(rollTheDice());
+        }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(v -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
     }
 
     /**
